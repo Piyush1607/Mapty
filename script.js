@@ -60,6 +60,7 @@ class App{
   #workouts=[];
   constructor(){ // put methods in constructor so they get called immediately when app is initialized
     this._getPosition();
+    this._getLocalStorage()
     form.addEventListener('submit',this._newWorkout.bind(this))
     inputType.addEventListener('change',this._toggleElevationField)
     containerWorkouts.addEventListener('click',this._moveToPopup.bind(this))
@@ -82,6 +83,10 @@ class App{
     }).addTo(this.#map);
     // DISPLAYING MARKERS WHERE EVER WE CLICK
     this.#map.on('click',this._showForm.bind(this));
+
+    this.#workouts.forEach(work=>{
+      this._renderWorkout(work)
+    })
   }
   _showForm(mapE){
     // console.log(this);
@@ -128,6 +133,7 @@ class App{
     this._renderWorkout(workout)
     this._renderWorkoutForm(workout)
     this._hideForm();
+    this._setLocalStorage()
   }
   _renderWorkout(workout){
     L.marker(workout.coords)
@@ -200,6 +206,23 @@ class App{
         duration:0.5
       }
     });
+  }
+  _setLocalStorage(){
+    localStorage.setItem('workouts',JSON.stringify(this.#workouts))
+  }
+
+  _getLocalStorage(){
+    const data = JSON.parse(localStorage.getItem('workouts'))
+    if(!data) return
+    this.#workouts=data
+
+    this.#workouts.forEach(work=>{
+      this._renderWorkoutForm(work)
+    })
+  }
+  reset(){
+    localStorage.removeItem('workouts')
+    location.reload()
   }
 }
 const app=new App(); 
