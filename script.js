@@ -56,11 +56,13 @@ class Running extends Workout{
 class App{
   #map;
   #mapEvent;
+  #mapZoomLevel=13;
   #workouts=[];
   constructor(){ // put methods in constructor so they get called immediately when app is initialized
     this._getPosition();
     form.addEventListener('submit',this._newWorkout.bind(this))
     inputType.addEventListener('change',this._toggleElevationField)
+    containerWorkouts.addEventListener('click',this._moveToPopup.bind(this))
   }
   _getPosition(){
     if (navigator.geolocation)
@@ -73,7 +75,7 @@ class App{
     const coords = [latitude, longitude];
     console.log(`https://www.google.com/maps/@${latitude},${longitude}`);
     console.log(this);
-    this.#map = L.map('map').setView(coords, 13);
+    this.#map = L.map('map').setView(coords, this.#mapZoomLevel);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -187,6 +189,17 @@ class App{
 
   form.insertAdjacentHTML('afterend',html) 
   // we pass the html element as the sibling of form which is child in workoutcontainer
+  }
+  _moveToPopup(e){
+    const workoutEl= e.target.closest('.workout')
+    if(!workoutEl) return
+    const workout = this.#workouts.find(work=>work.id===workoutEl.dataset.id)
+    this.#map.setView(workout.coords,this.#mapZoomLevel,{
+      animate : true,
+      pan:{
+        duration:0.5
+      }
+    });
   }
 }
 const app=new App(); 
